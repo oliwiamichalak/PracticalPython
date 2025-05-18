@@ -1,0 +1,2 @@
+# PracticalPython
+Python exercises
