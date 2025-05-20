@@ -1,5 +1,7 @@
 import time
 import os
+import sys # sys.exit for debugging 
+import json
 from pprint import pprint
 from collections import defaultdict
 
@@ -23,6 +25,7 @@ EXT_TO_LANG = {
   ".php": "PHP",
   ".sh": "BASH"
 }
+BAR_WIDTH = 40
 
 def count_lines(fname):
   with open(fname, "rb") as f:  # open as binary due to bypass decoding error for simplicity
@@ -68,27 +71,66 @@ def get_stats(stats):
   stats["totalLoC"] = total_loc
   stats["totalFiles"] = total_file_count
 
-def show_stats(stats):
-  pprint(stats)
+def show_stats_for(label, locs):
+  max_loc = max(locs)
+  i = 1
+  while i < max_loc: 
+    i *= 2
+  
+  print(f"\x1b[1;37m{label}\x1b[m") # coloured label white
+
+  for j, loc in enumerate(locs):
+    if len(locs) == 1:
+      g = 255
+    else:
+      g = 55 + int(j / (len(locs) - 1)*255)
+    
+    color = f'\x1b[38;2;0;{g};0m'
+    bar_size = int((loc / i) * BAR_WIDTH)
+    bar = "\u2593" * bar_size
+    print(f" \x1b[1;31m{loc:5} \x1b[m {color}{bar}\x1b") # coloured label red
+
+  print()
+
+def show_stats(stats_in_time):
+  # pprint(stats) # pretty print
+  print("\x1b[3J", end="") # clear all terminal screen, escape ASCI code
+
+  for lang in ["BASH", "C/C++", "Python"]: 
+    locs = []
+    for stats in stats_in_time:
+      locs.append(stats["langs"].get(lang, 0))
+  show_stats_for(lang, locs)
+
+  # show_stats_for("C/C++", stats["langs"].get("C/C++", 0)) example
 
 
 def main():
-  stats = {
-    "totalLoC": None,
-      "langs": {
-        # Python
-      }
-  }
+  stats_in_time = []
 
   try:
+    with open("stats.json") as f:
+      stats_in_time = json.load(f)
+  except FileNotFoundError:
+    pass
+  
+  try:
     while True:
+      stats = {
+        "totalLoC": None,
+        "langs": {
+           # Python
+       }
+    }
       get_stats(stats)
-      show_stats(stats)
-      time.sleep(1.5) # Seconds
+      stats_in_time.append(stats)
+      show_stats(stats_in_time[-6:]) # last 30 seconds = 6*5
+      time.sleep(20) # Seconds
   except KeyboardInterrupt:
     print("\n done!")
 
-
+  with open("stats.json", "w") as f:
+    json.dump(stats_in_time, f)
 
 if __name__ == "__main__":
   main()
