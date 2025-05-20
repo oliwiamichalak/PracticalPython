@@ -77,7 +77,7 @@ def show_stats_for(label, locs):
   while i < max_loc: 
     i *= 2
   
-  print(f"\x1b[1;37m{label}\x1b[m") # coloured label white
+  print(f"\x1b[1;37m{label}\x1b[m (scale: 1/{i})") # coloured label white
 
   for j, loc in enumerate(locs):
     if len(locs) == 1:
