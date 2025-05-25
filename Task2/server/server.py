@@ -8,7 +8,7 @@ app = FastAPI()
 @app.post('/api/add-numbers') # decorator 
 
 def add_numbers(numbers: List[int], api_key: str):
-    if api_key != "Cappuccino Assassino":  # this is NOT how to handle keys, just for fun
+    if api_key != "CappuccinoAssassino":  # this is NOT how to handle keys, just for fun
         return {
             "result": None,
             "error": True,

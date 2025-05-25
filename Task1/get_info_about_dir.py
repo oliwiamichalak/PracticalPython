@@ -29,7 +29,14 @@ BAR_WIDTH = 40
 
 def count_lines(fname):
   with open(fname, "rb") as f:  # open as binary due to bypass decoding error for simplicity
-    return len(f.readlines()) 
+    counter = 0
+    for ln in f.readlines():
+        if not ln.strip(): # can be optimized but premature optimization is the root of all evil
+          continue
+        counter += 1
+
+    return counter
+    
   # alternatively f.read().split(b'\n') - more lines in split method as it counts empty lines on the end opf the files
 
 def get_stats(stats):
@@ -74,7 +81,7 @@ def get_stats(stats):
 def show_stats_for(label, locs):
   max_loc = max(locs)
   i = 1
-  while i < max_loc: 
+  while i < max_loc:   # alternatively to loop we can use 2**math.celi(math.log(loc,2))
     i *= 2
   
   print(f"\x1b[1;37m{label}\x1b[m (scale: 1/{i})") # coloured label white
